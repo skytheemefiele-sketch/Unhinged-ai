@@ -1,0 +1,10 @@
+{
+  "remote": {
+    "enabled": true,
+    "provider": "openai_compatible",
+    "base_url": "https://your-endpoint.example/v1",
+    "api_key": "SET_VIA_CUSTOM_API_KEY",
+    "model": "your-model-name",
+    "timeout_seconds": 120
+  }
+}
