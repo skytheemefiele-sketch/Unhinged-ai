@@ -12,7 +12,7 @@ ROOT=Path(__file__).resolve().parent.parent
 TOOL_GUIDE="""Available tools return JSON objects in this exact shape: {"tool":"tool_name","arguments":{...}}.
 Tools: file_read(path), file_write(path,content), file_patch(path,old,new), file_list(path optional),
 shell_exec(command), web_search(query), web_fetch(url), voice_say(text), voice_listen(),
-gmail_check_codes(), gmail_send(to,subject,body), image_generate(prompt).
+gmail_check_codes(), gmail_send(to,subject,body), git_checkpoint(message), phone_intent(url).
 Only call tools when needed. Shell and email sending require asking the user for confirmation in the app.
 """
 
@@ -76,7 +76,7 @@ class App:
             if input(f"Allow shell command in workspace? {command} [y/N] ").strip().lower()!="y":
                 return {"cancelled":True,"reason":"User declined shell execution"}
             return self.tools.shell_exec(command,confirm=True)
-        if name=="web_search": return self.tools.web_search(args["query"])
+        if name=="git_checkpoint":\n            if input("Create a Git checkpoint in the workspace? [y/N] ").strip().lower()!="y": return {"cancelled":True}\n            return self.tools.git_checkpoint(args.get("message","Unhinged AI checkpoint"))\n        if name=="phone_intent": return self.tools.phone_intent(args["url"])\n        if name=="web_search": return self.tools.web_search(args["query"])
         if name=="web_fetch": return self.tools.web_fetch(args["url"])
         if name=="voice_say": return speak(args["text"])
         if name=="voice_listen": return listen()
