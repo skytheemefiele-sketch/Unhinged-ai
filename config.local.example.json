@@ -1,4 +1,5 @@
 {
+  "modes":{"sora":{"backend":"local"},"shadow":{"backend":"local"},"jarvis":{"backend":"local"}},
   "remote":{"enabled":false,"provider":"openai_compatible","base_url":"","api_key":"","model":"","timeout_seconds":120},
   "remote_image":{"enabled":false,"provider":"openai_compatible","base_url":"","api_key":"","model":"","size":"512x512"}
 }
