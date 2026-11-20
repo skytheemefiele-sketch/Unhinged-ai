@@ -1,20 +1,19 @@
 """Workspace-scoped tools with explicit safety boundaries."""
 from __future__ import annotations
-import re, shlex, subprocess, urllib.parse, urllib.request
+import re, shlex, subprocess, urllib.parse, urllib.request, shutil
 from pathlib import Path
 
 class ToolError(RuntimeError): pass
 
 class ToolBox:
-    def __init__(self, workspace: str | Path, config: dict):
+    def __init__(self,workspace: str|Path,config: dict):
         self.workspace=Path(workspace).expanduser().resolve()
         self.workspace.mkdir(parents=True,exist_ok=True)
         self.config=config
 
     def _path(self,value: str) -> Path:
         p=(self.workspace/value).resolve()
-        if p!=self.workspace and self.workspace not in p.parents:
-            raise ToolError("Path escapes the workspace")
+        if p!=self.workspace and self.workspace not in p.parents: raise ToolError("Path escapes the workspace")
         return p
 
     def file_read(self,path: str) -> str:
@@ -43,6 +42,22 @@ class ToolBox:
         if not argv: raise ToolError("Empty command")
         result=subprocess.run(argv,cwd=self.workspace,capture_output=True,text=True,timeout=120)
         return {"returncode":result.returncode,"stdout":result.stdout,"stderr":result.stderr}
+
+    def git_checkpoint(self,message="Unhinged AI checkpoint") -> str:
+        if not (self.workspace/".git").exists(): raise ToolError("Workspace is not a Git repository")
+        subprocess.run(["git","add","-A"],cwd=self.workspace,check=True,capture_output=True,text=True)
+        result=subprocess.run(["git","commit","-m",message],cwd=self.workspace,capture_output=True,text=True)
+        if result.returncode and "nothing to commit" not in result.stdout+result.stderr:
+            raise ToolError(result.stderr or result.stdout)
+        return result.stdout.strip() or "No changes to checkpoint"
+
+    def phone_intent(self,url: str) -> str:
+        parsed=urllib.parse.urlparse(url)
+        if parsed.scheme!="https": raise ToolError("Only HTTPS links can be opened on the phone")
+        exe=shutil.which("termux-open-url")
+        if not exe: raise ToolError("termux-open-url unavailable; install Termux:API")
+        subprocess.run([exe,url],check=True,timeout=15)
+        return "Opened link on phone"
 
     def web_fetch(self,url: str,max_bytes: int=1_000_000) -> str:
         parsed=urllib.parse.urlparse(url)
