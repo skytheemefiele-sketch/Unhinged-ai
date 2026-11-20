@@ -1,17 +1,15 @@
 """Tolerant extraction of JSON tool-call objects from model output."""
-import json
-import re
+import json, re
 
 def extract_tool_calls(text: str) -> list[dict]:
-    candidates=[]
-    candidates.extend(re.findall(r"```(?:json)?\s*(.*?)```",text,re.I|re.S))
-    candidates.append(text)
+    blocks=re.findall(r"```(?:json)?\s*(.*?)```",text,re.I|re.S)
+    candidates=blocks if blocks else [text]
     calls=[]
     for candidate in candidates:
         decoder=json.JSONDecoder()
         for match in re.finditer(r"\{",candidate):
             try:
-                obj,end=decoder.raw_decode(candidate[match.start():])
+                obj,_=decoder.raw_decode(candidate[match.start():])
                 if isinstance(obj,dict) and isinstance(obj.get("tool"),str):
                     calls.append(obj)
             except json.JSONDecodeError:
