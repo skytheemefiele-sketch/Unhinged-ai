@@ -9,16 +9,14 @@ Local-first, three-mode personal assistant for Android/Termux.
 The process manager stops its previously managed local heavy process before starting another. This is intended to reduce memory pressure and heat on the Vivo Y-series Android 12 device. It cannot guarantee performance; confirm the exact chipset/RAM and benchmark models on-device.
 
 ## Termux install
+Install Termux and the Termux:API Android companion from the same maintained distribution source. Then:
+
 ```sh
 pkg update && pkg upgrade -y
-pkg install -y python git clang cmake make
+pkg install -y python git clang cmake make termux-api
 git clone https://github.com/skytheemefiele-sketch/Unhinged-ai.git
 cd Unhinged-ai
-python -m venv .venv && . .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-python -m unittest discover -s tests -v
-python main.py
+bash setup.sh
 ```
 
 Put a compatible GGUF at `models/llm.gguf`; install a Termux-compatible `llama-server` binary on PATH. The app launches and supervises it locally on `127.0.0.1:8080`. Configure `modes.sora.model_path` and `modes.shadow.model_path` in private `config.local.json` if needed.
@@ -34,7 +32,7 @@ Copy `.env.example` to `.env`. Set `CUSTOM_BASE_URL`, `CUSTOM_API_KEY`, and `CUS
 Gmail optionally uses `AI_GMAIL_USER` and `AI_GMAIL_APP_PASS`. Sending mail prompts for confirmation. Voice requires Termux:API. Never commit `.env`, `config.local.json`, secrets, model weights, inbox contents, or generated images.
 
 ## Render QA
-Render runs the standard-library test suite at build time and starts a minimal health endpoint. It does not host the Android local models, Gmail credentials, or Termux hardware APIs. No GitHub Actions workflow is required.
+Render's test build command is `python -m unittest discover -s tests -v && python config_loader.py`; the optional health endpoint is `python qa_server.py`. Render does not host the Android local models, Gmail credentials, or Termux hardware APIs. No GitHub Actions workflow is required.
 
 ## Tests
 ```sh
@@ -47,5 +45,5 @@ python config_loader.py
 - Shell execution requires interactive approval and runs without `shell=True`; still review commands before approval.
 - Web fetching is HTTPS-only and blocks obvious localhost names, but DNS-rebinding/private-IP defenses should be strengthened before treating arbitrary URLs as fully safe.
 - Gmail uses app-password IMAP/SMTP; OAuth is not implemented.
-- Remote image support expects an OpenAI-compatible `/images/generations` endpoint returning base64 or URL data.
+- Remote image support expects an OpenAI-compatible `POST /images/generations` endpoint returning base64 or URL data.
 - Android microphone, TTS, local inference, GPU support, thermal behavior, and model performance require real-device acceptance testing.
