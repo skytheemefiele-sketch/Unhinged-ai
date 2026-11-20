@@ -1,0 +1,19 @@
+# Private configuration and credentials
+config.local.json
+.env
+.env.*
+!.env.example
+
+# Local models, caches, and generated media
+models/
+*.gguf
+*.safetensors
+*.ckpt
+*.pt
+outputs/
+.cache/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
