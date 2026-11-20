@@ -1,39 +1,40 @@
 # Unhinged AI
 
-A local-first, three-mode personal assistant designed for Android/Termux.
+Local-first, three-mode personal assistant for Android/Termux.
 
-## Modes
-- **SORA** — personal assistant using a local llama.cpp OpenAI-compatible endpoint by default; optional remote OpenAI-compatible endpoint.
-- **SHADOW** — workspace-scoped coding/file assistant. Shell commands require explicit confirmation.
-- **JARVIS** — isolated stable-diffusion.cpp image generation process.
+- **SORA:** personal assistant; local llama.cpp by default, optional OpenAI-compatible chat endpoint.
+- **SHADOW:** workspace-scoped developer assistant; file tools and shell execution with per-command confirmation.
+- **JARVIS:** separate stable-diffusion.cpp local image process or an independently configured OpenAI-compatible image endpoint.
 
-Only one heavy local engine may run at a time. The process supervisor terminates the prior process group before starting another. This is intended to reduce memory pressure and heat on the Vivo Y-series Android 12 device; actual performance depends on the exact SoC, RAM, model, and backend build.
+The process manager stops its previously managed local heavy process before starting another. This is intended to reduce memory pressure and heat on the Vivo Y-series Android 12 device. It cannot guarantee performance; confirm the exact chipset/RAM and benchmark models on-device.
 
-## Install on Termux
-Install Termux and Termux:API from the same trusted distribution source, then:
-
+## Termux install
 ```sh
 pkg update && pkg upgrade -y
-pkg install -y python git
+pkg install -y python git clang cmake make
 git clone https://github.com/skytheemefiele-sketch/Unhinged-ai.git
 cd Unhinged-ai
-python -m venv .venv
-. .venv/bin/activate
+python -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
+python -m unittest discover -s tests -v
 python main.py
 ```
 
-Edit `config.local.json` for local model names and paths. Install/build llama.cpp and stable-diffusion.cpp separately for a compatible Android ARM64 environment. Start the llama.cpp server at `127.0.0.1:8080` when using local SORA/SHADOW.
+Put a compatible GGUF at `models/llm.gguf`; install a Termux-compatible `llama-server` binary on PATH. The app launches and supervises it locally on `127.0.0.1:8080`. Configure `modes.sora.model_path` and `modes.shadow.model_path` in private `config.local.json` if needed.
+
+For local JARVIS, install a compatible stable-diffusion.cpp `sd` binary and set `modes.jarvis.model_path` to its model. On-device diffusion may be very slow or unsupported on this mobile chipset. Remote image generation is separately configured and does not share the LLM API credentials.
 
 ## Commands
 `/sora`, `/shadow`, `/jarvis`, `/voice`, `/status`, `/exit`.
 
-## Private remote endpoint
-Set `CUSTOM_BASE_URL`, `CUSTOM_API_KEY`, and `CUSTOM_MODEL` in `.env` or `config.local.json`. Select remote routing for SORA or SHADOW using the mode backend setting or `UNHINGED_SORA_BACKEND=remote`. Never commit `.env` or `config.local.json`.
+## Private configuration
+Copy `.env.example` to `.env`. Set `CUSTOM_BASE_URL`, `CUSTOM_API_KEY`, and `CUSTOM_MODEL` for remote chat; route SORA or SHADOW by setting `UNHINGED_SORA_BACKEND=remote` or `UNHINGED_SHADOW_BACKEND=remote`. For image generation set `IMAGE_BASE_URL`, `IMAGE_API_KEY`, and `IMAGE_MODEL` to an OpenAI-compatible `/images/generations` provider. Or set these under `remote` / `remote_image` in ignored `config.local.json`.
 
-## Gmail and voice
-Gmail needs `AI_GMAIL_USER` and `AI_GMAIL_APP_PASS` configured privately. Sending email requires explicit confirmation in the interactive application before use. Voice requires Termux:API. These integrations are optional.
+Gmail optionally uses `AI_GMAIL_USER` and `AI_GMAIL_APP_PASS`. Sending mail prompts for confirmation. Voice requires Termux:API. Never commit `.env`, `config.local.json`, secrets, model weights, inbox contents, or generated images.
+
+## Render QA
+Render runs the standard-library test suite at build time and starts a minimal health endpoint. It does not host the Android local models, Gmail credentials, or Termux hardware APIs. No GitHub Actions workflow is required.
 
 ## Tests
 ```sh
@@ -41,10 +42,10 @@ python -m unittest discover -s tests -v
 python config_loader.py
 ```
 
-## Safety and limitations
-- File operations are restricted to `~/ai-workspace`.
-- Shell tool execution is denied unless the caller explicitly confirms it; model tool calls cannot silently authorize shell commands.
-- Web fetch only allows HTTPS and blocks obvious local host targets. Use caution with untrusted URLs.
-- The generic remote endpoint is a chat endpoint; it does not imply remote image generation.
-- Local image generation on mobile may be slow, unsupported, or thermally constrained. JARVIS can use a future remote image adapter; that adapter is not yet included in this release.
-- Never put API keys, Gmail app passwords, personal mail, model weights, or generated images in this public repository.
+## Security and known limitations
+- File tools are confined to `~/ai-workspace`.
+- Shell execution requires interactive approval and runs without `shell=True`; still review commands before approval.
+- Web fetching is HTTPS-only and blocks obvious localhost names, but DNS-rebinding/private-IP defenses should be strengthened before treating arbitrary URLs as fully safe.
+- Gmail uses app-password IMAP/SMTP; OAuth is not implemented.
+- Remote image support expects an OpenAI-compatible `/images/generations` endpoint returning base64 or URL data.
+- Android microphone, TTS, local inference, GPU support, thermal behavior, and model performance require real-device acceptance testing.
