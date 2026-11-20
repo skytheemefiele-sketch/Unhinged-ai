@@ -27,7 +27,7 @@ For local JARVIS, install a compatible stable-diffusion.cpp `sd` binary and set 
 `/sora`, `/shadow`, `/jarvis`, `/voice`, `/status`, `/exit`.
 
 ## Private configuration
-Copy `.env.example` to `.env`. Set `CUSTOM_BASE_URL`, `CUSTOM_API_KEY`, and `CUSTOM_MODEL` for remote chat; route SORA or SHADOW by setting `UNHINGED_SORA_BACKEND=remote` or `UNHINGED_SHADOW_BACKEND=remote`. For image generation set `IMAGE_BASE_URL`, `IMAGE_API_KEY`, and `IMAGE_MODEL` to an OpenAI-compatible `/images/generations` provider. Or set these under `remote` / `remote_image` in ignored `config.local.json`.
+Copy `.env.example` to `.env`. Set `CUSTOM_BASE_URL`, `CUSTOM_API_KEY`, and `CUSTOM_MODEL` for remote chat; route SORA or SHADOW by setting `UNHINGED_SORA_BACKEND=remote` or `UNHINGED_SHADOW_BACKEND=remote`. For remote image generation set `IMAGE_BASE_URL`, `IMAGE_API_KEY`, and `IMAGE_MODEL` to an OpenAI-compatible `/images/generations` provider, then set `UNHINGED_JARVIS_BACKEND=remote` (or `modes.jarvis.backend=remote` in `config.local.json`). JARVIS stays local by default. Or set these under `remote` / `remote_image` in ignored `config.local.json`.
 
 Gmail optionally uses `AI_GMAIL_USER` and `AI_GMAIL_APP_PASS`. Sending mail prompts for confirmation. Voice requires Termux:API. Never commit `.env`, `config.local.json`, secrets, model weights, inbox contents, or generated images.
 
