@@ -42,7 +42,7 @@ def load_config(root: Path|str|None=None) -> dict[str,Any]:
     for key,env in (("base_url","IMAGE_BASE_URL"),("api_key","IMAGE_API_KEY"),("model","IMAGE_MODEL")):
         if os.getenv(env): image[key]=os.environ[env]
     if any(image.get(k) for k in ("base_url","api_key","model")): image["enabled"]=True
-    for mode in ("sora","shadow"):
+    for mode in ("sora","shadow","jarvis"):
         override=os.getenv(f"UNHINGED_{mode.upper()}_BACKEND")
         if override:
             if override not in ("local","remote"): raise ValueError(f"UNHINGED_{mode.upper()}_BACKEND must be local or remote")
@@ -65,7 +65,7 @@ def validate_config(cfg: dict[str,Any]) -> None:
             for key in ("base_url","api_key","model"):
                 if not item.get(key): raise ValueError(f"{section} is enabled but {section}.{key} is empty")
             if not item["base_url"].startswith(("http://","https://")): raise ValueError(f"{section}.base_url must be HTTP(S)")
-    if modes["jarvis"].get("engine")!="stable_diffusion_cpp": raise ValueError("JARVIS must use stable_diffusion_cpp")
+    if modes["jarvis"].get("engine")!="stable_diffusion_cpp": raise ValueError("JARVIS must use stable_diffusion_cpp")\n    if modes["jarvis"].get("backend","local") not in ("local","remote"): raise ValueError("modes.jarvis.backend must be local or remote")\n    if modes["jarvis"].get("backend")=="remote" and not cfg.get("remote_image",{}).get("enabled"): raise ValueError("JARVIS selects remote but remote_image is disabled")
 
 if __name__=="__main__":
     c=load_config()
