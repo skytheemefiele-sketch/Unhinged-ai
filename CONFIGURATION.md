@@ -1,39 +1,8 @@
 # Configuration
+Priority: committed `config.json` defaults, ignored `config.local.json`, then process environment / private `.env` overrides.
 
-Unhinged AI loads configuration in this order (later values win):
+SORA and SHADOW default to the local llama.cpp server at `http://127.0.0.1:8080/v1`; the app starts and supervises `llama-server` with the configured GGUF. Both use separate prompts and mode settings, while the local server loads the mode-specific model path. JARVIS uses its own stable-diffusion.cpp process. The process manager terminates the prior managed engine before another starts.
 
-1. `config.json` — safe, committed defaults; local-only operation is the default.
-2. `config.local.json` — optional private machine configuration; ignored by Git.
-3. Environment variables — highest-priority overrides for private remote credentials.
+Remote chat: set `CUSTOM_BASE_URL`, `CUSTOM_API_KEY`, `CUSTOM_MODEL`; then choose remote backend for SORA/SHADOW. Remote image: set `IMAGE_BASE_URL`, `IMAGE_API_KEY`, `IMAGE_MODEL`; it must implement OpenAI-compatible `POST /images/generations` and return `b64_json` or `url`. These are independent providers.
 
-## Local-first defaults
-
-- SORA and SHADOW use the local llama.cpp OpenAI-compatible server at `http://127.0.0.1:8080/v1`.
-- JARVIS uses a separate `stable-diffusion.cpp` `sd` executable and its own model/output paths.
-- The runtime is configured to allow only one heavy engine at a time. The mode supervisor must stop and confirm shutdown of the previous engine before starting another; configuration alone does not enforce process isolation.
-
-## Optional OpenAI-compatible endpoint
-
-Copy `config.local.example.json` to `config.local.json`, then set the endpoint details there, or create a private `.env` from `.env.example`:
-
-```sh
-cp .env.example .env
-```
-
-Set `CUSTOM_BASE_URL`, `CUSTOM_API_KEY`, and `CUSTOM_MODEL`. When these environment variables are present, the remote endpoint is enabled. To route SORA or SHADOW remotely, set that mode's `backend` to `remote` in `config.local.json`, or set `UNHINGED_SORA_BACKEND=remote` / `UNHINGED_SHADOW_BACKEND=remote`. Both modes remain local by default.
-
-The custom endpoint is for OpenAI-compatible chat/completions. It does not automatically provide image generation: JARVIS remains on its isolated local image engine unless a separate image-provider integration is implemented and configured.
-
-## Security
-
-Never commit `config.local.json`, `.env`, API keys, Gmail app passwords, model weights, or generated outputs. The repository is public. Use placeholders in examples only. Do not paste credentials into chat or source files.
-
-## Validate
-
-Run:
-
-```sh
-python config_loader.py
-```
-
-The loader validates the three distinct modes, enforces the single-heavy-engine configuration, and checks that remote settings are complete before a remote backend is selected.
+Never commit `.env` or `config.local.json`. Example files contain placeholders only. Run `python config_loader.py` to validate configuration.
