@@ -111,7 +111,7 @@ class App:
 
     def _image(self,prompt):
         cfg=self.cfg["modes"]["jarvis"]
-        if self.cfg.get("remote_image",{}).get("enabled"): return self._remote_image(prompt)
+        if cfg.get("backend","local")=="remote":\n            if not self.cfg.get("remote_image",{}).get("enabled"): raise ToolError("Configure the remote_image endpoint before selecting remote JARVIS.")\n            return self._remote_image(prompt)
         exe=shutil.which(cfg.get("executable","sd"))
         if not exe: raise ToolError("stable-diffusion.cpp 'sd' executable not found; install it or configure remote_image.")
         model=Path(cfg.get("model_path","models/image/model.safetensors"))
