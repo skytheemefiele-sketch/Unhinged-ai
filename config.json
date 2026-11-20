@@ -1,0 +1,62 @@
+{
+  "app": {
+    "name": "Unhinged AI",
+    "environment": "local",
+    "log_to_disk": false
+  },
+  "runtime": {
+    "default_mode": "sora",
+    "max_heavy_engines_active": 1,
+    "switch_policy": "stop_previous_before_starting_next",
+    "shutdown_timeout_seconds": 20
+  },
+  "modes": {
+    "sora": {
+      "engine": "llama_cpp",
+      "backend": "local",
+      "base_url": "http://127.0.0.1:8080/v1",
+      "model": "local-sora",
+      "system_prompt": "prompts/sora.md",
+      "process_group": "sora"
+    },
+    "shadow": {
+      "engine": "llama_cpp",
+      "backend": "local",
+      "base_url": "http://127.0.0.1:8080/v1",
+      "model": "local-shadow",
+      "system_prompt": "prompts/shadow.md",
+      "process_group": "shadow"
+    },
+    "jarvis": {
+      "engine": "stable_diffusion_cpp",
+      "backend": "local",
+      "executable": "sd",
+      "model_path": "models/image",
+      "output_dir": "outputs",
+      "process_group": "jarvis"
+    }
+  },
+  "local": {
+    "llm": {
+      "base_url": "http://127.0.0.1:8080/v1",
+      "api_key": "not-needed"
+    },
+    "image": {
+      "engine": "stable_diffusion_cpp",
+      "executable": "sd"
+    }
+  },
+  "remote": {
+    "enabled": false,
+    "provider": "openai_compatible",
+    "base_url": "",
+    "api_key": "",
+    "model": "",
+    "timeout_seconds": 120
+  },
+  "safety": {
+    "confirm_before_email_send": true,
+    "confirm_before_destructive_shell": true,
+    "restrict_file_tools_to_workspace": true
+  }
+}
