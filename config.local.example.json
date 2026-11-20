@@ -1,10 +1,4 @@
 {
-  "remote": {
-    "enabled": true,
-    "provider": "openai_compatible",
-    "base_url": "https://your-endpoint.example/v1",
-    "api_key": "SET_VIA_CUSTOM_API_KEY",
-    "model": "your-model-name",
-    "timeout_seconds": 120
-  }
+  "remote":{"enabled":false,"provider":"openai_compatible","base_url":"","api_key":"","model":"","timeout_seconds":120},
+  "remote_image":{"enabled":false,"provider":"openai_compatible","base_url":"","api_key":"","model":"","size":"512x512"}
 }
